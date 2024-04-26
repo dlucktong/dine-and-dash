@@ -6,7 +6,7 @@ public class TutorialManager : MonoBehaviour
 {
     public GameManager gameManager;
     public Target restaurantTarget;
-    private string[] _lines = 
+    private string[] lines = 
     {
         "Welcome to Dine and Dash!\n(click to proceed)",
         "Your goal is to quickly deliver pizzas throughout the city.",
@@ -32,92 +32,92 @@ public class TutorialManager : MonoBehaviour
     public TutorialTrigger deliveryTrigger;
     public GameObject upgradeButtons;
 
-    private int _index;
-    private float _charDelay = 0.032f;
-    private bool _canSkip = false;
-    private float _timer;
-    void Start()
+    private int index;
+    private float charDelay = 0.032f;
+    private bool canSkip = false;
+    private float timer;
+    private void Start()
     {
         text.text = string.Empty;
         gameManager.PauseAll();
         gameManager.PauseGame();
         Invoke(nameof(StartDialogue), 2);
     }
-    void Update()
+    private void Update()
     {
-        _timer += Time.deltaTime;
+        timer += Time.deltaTime;
         if (transform.gameObject.activeInHierarchy)
         {
-            if (_index == 5 && restaurantTrigger.hit)
+            if (index == 5 && restaurantTrigger.hit)
             {
                 gameManager.PauseAll();
                 NextLine();
             }
-            else if (_index == 8 && text.text == _lines[_index])
+            else if (index == 8 && text.text == lines[index])
             {
                 text.text += ':';
                 gameManager.PauseGame();
                 StartCoroutine(SpawnDropoffLocation());
             }
-            else if (_index == 12 && deliveryTrigger.hit)
+            else if (index == 12 && deliveryTrigger.hit)
             {
                 StopAllCoroutines();
                 text.text = string.Empty;
                 StartCoroutine(DelayedDisplay());
             }
-            else if (_index == 15)
+            else if (index == 15)
             {
                 upgradeButtons.SetActive(true);
-                _canSkip = false;
-                _index += 1;
+                canSkip = false;
+                index += 1;
             }
             
-            else if (Input.GetMouseButtonDown(0) && _timer > 0.5f && _index != 5 && _index != 8 && _index != 12 && _index != 13 && _index <= 15 && _canSkip)
+            else if (Input.GetMouseButtonDown(0) && timer > 0.5f && index != 5 && index != 8 && index != 12 && index != 13 && index <= 15 && canSkip)
             {
-                _timer = 0;
-                if (text.text == _lines[_index])
+                timer = 0;
+                if (text.text == lines[index])
                 {
                     NextLine();
                 }
                 else
                 {
                     StopAllCoroutines();
-                    text.text = _lines[_index];
+                    text.text = lines[index];
                 }
             }
         }
     }
 
-    void StartDialogue()
+    private void StartDialogue()
     {
-        _canSkip = true; 
+        canSkip = true; 
         StartCoroutine(TypeLine());
     }
 
-    IEnumerator TypeLine()
+    private IEnumerator TypeLine()
     {
-        foreach (char c in _lines[_index])
+        foreach (char c in lines[index])
         {
             text.text += c;
             if(c != ' ') typingSound.Play();
-            yield return new WaitForSecondsRealtime(_charDelay);
+            yield return new WaitForSecondsRealtime(charDelay);
         }
     }
 
-    void NextLine()
+    private void NextLine()
     {
-        if (_index < _lines.Length - 1)
+        if (index < lines.Length - 1)
         {
-            _index++;
-            if (_index == 3)
+            index++;
+            if (index == 3)
             {
                 restaurantTarget.enabled = true;
             }
-            else if (_index == 5)
+            else if (index == 5)
             {
                 gameManager.PauseAll();
             }
-            else if (_index == 12)
+            else if (index == 12)
             {
                 gameManager.PauseAll();
                 gameManager.PauseGame();
@@ -127,9 +127,9 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
-    IEnumerator SpawnDropoffLocation()
+    private IEnumerator SpawnDropoffLocation()
     {
-        _index = 8; 
+        index = 8; 
         yield return new WaitForSecondsRealtime(1);
         gameManager.StartNewDay();
         gameManager.PauseGame();
@@ -137,7 +137,7 @@ public class TutorialManager : MonoBehaviour
         NextLine();
     }
 
-    IEnumerator DelayedDisplay()
+    private IEnumerator DelayedDisplay()
     {
         NextLine();
         yield return new WaitForSecondsRealtime(4);

@@ -11,7 +11,6 @@ public class CarController : MonoBehaviour
     [SerializeField] private Rigidbody rb;
     [SerializeField] private TextMeshProUGUI speedDisplay;
 
-
     [Header("Car Settings")] 
     public float forwardAcceleration = 5;
     public float reverseAcceleration = 4;
@@ -45,20 +44,20 @@ public class CarController : MonoBehaviour
     [Header("Ground")]
     [SerializeField] private LayerMask groundLayer;
 
-    private float _speedInput, _turnInput;
-    private float _brakeInput;
-    private bool _grounded;
-    private float _driftMultiplier;
-    private float _driftAngle;
-    private float _velocity;
-    private bool _canMove = true;
-    private float _frontWheelArm;
-    private float _backWheelArm;
-    private bool[] _groundedTires = {false, false, false, false};
-    private Vector3 _lastPos;
-    private List<GameObject> _roads;
-    
-    
+    private float speedInput, turnInput;
+    private float brakeInput;
+    private bool grounded;
+    private float driftMultiplier;
+    private float driftAngle;
+    private float velocity;
+    private bool canMove = true;
+    private float frontWheelArm;
+    private float backWheelArm;
+    private bool[] groundedTires = {false, false, false, false};
+    private Vector3 lastPos;
+    private List<GameObject> roads;
+
+    private static Transform rbTransform;
 
     void Start()
     {
@@ -68,74 +67,74 @@ public class CarController : MonoBehaviour
 
         // Moment arms from body CM to front and back wheels
         // Note these are not perfect, since they're 3d vectors they overshoot actual distances by a bit
-        _frontWheelArm = (((frontLeft.position + frontRight.position) / 2) - rb.worldCenterOfMass).magnitude;
-        _backWheelArm = (((backLeft.position + backRight.position) / 2) - rb.worldCenterOfMass).magnitude;
-        _lastPos = transform.position;
+        frontWheelArm = (((frontLeft.position + frontRight.position) / 2) - rb.worldCenterOfMass).magnitude;
+        backWheelArm = (((backLeft.position + backRight.position) / 2) - rb.worldCenterOfMass).magnitude;
+        lastPos = transform.position;
         
-        _roads = GameObject.FindGameObjectsWithTag("Road").ToList();
+        roads = GameObject.FindGameObjectsWithTag("Road").ToList();
     }
 
     void OnEnable()
     {
-        GameManager.GameStart += ResetPosition;
-        GameManager.GameOver += DisablePlayerInput;
-        GameManager.RoundEnd += DisablePlayerInput;
-        GameManager.RoundStart += EnablePlayerInput;
-        GameManager.Pause += Pause;
+        GameManager.OnGameStart += ResetPosition;
+        GameManager.OnGameOver += DisablePlayerInput;
+        GameManager.OnRoundEnd += DisablePlayerInput;
+        GameManager.OnRoundStart += EnablePlayerInput;
+        GameManager.OnPause += Pause;
     }
 
     private void OnDisable()
     {
-        GameManager.GameStart -= ResetPosition;
-        GameManager.GameOver -= DisablePlayerInput;
-        GameManager.RoundEnd -= DisablePlayerInput;
-        GameManager.RoundStart -= EnablePlayerInput;
-        GameManager.Pause -= Pause;
+        GameManager.OnGameStart -= ResetPosition;
+        GameManager.OnGameOver -= DisablePlayerInput;
+        GameManager.OnRoundEnd -= DisablePlayerInput;
+        GameManager.OnRoundStart -= EnablePlayerInput;
+        GameManager.OnPause -= Pause;
     }
 
     void Update()
     {
-        _velocity = Vector3.Dot(rb.velocity, transform.forward);
+        velocity = Vector3.Dot(rb.velocity, transform.forward);
 
-        speedDisplay.text = "Speed: " + Math.Round(Math.Abs(_velocity), 2);
+        speedDisplay.text = "Speed: " + Math.Round(Math.Abs(velocity), 2);
 
-        _speedInput = 0;
+        speedInput = 0;
         // Accelerate
         if (Input.GetAxis("Vertical") > 0)
         {
-            _speedInput += Input.GetAxis("Vertical") * forwardAcceleration * 300;
+            speedInput += Input.GetAxis("Vertical") * forwardAcceleration * 300;
         }
 
         // Reverse
         else if (Input.GetAxis("Vertical") < 0)
         {
-            _speedInput += Input.GetAxis("Vertical") * reverseAcceleration * 300;
+            speedInput += Input.GetAxis("Vertical") * reverseAcceleration * 300;
         }
 
         if (Input.GetKeyDown(KeyCode.R))
         {
             // Sort the roads by closest, take the first one
             // Surprisingly not slow in my testing?
-            _roads.Sort((a,b) => Vector3.Distance(a.transform.position, transform.position) < Vector3.Distance(b.transform.position, transform.position) ? -1 : 1);
-            rb.position = _roads[0].transform.position + new Vector3(0, 2, 0);
+            roads.Sort((a,b) => Vector3.Distance(a.transform.position, transform.position) < Vector3.Distance(b.transform.position, transform.position) ? -1 : 1);
+            rb.position = roads[0].transform.position + new Vector3(0, 2, 0);
             rb.rotation = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0);
         }
 
         // Inputs for turn and handbrake
-        _turnInput = Input.GetAxis("Horizontal");
-        _brakeInput = Input.GetAxis("Jump");
+        turnInput = Input.GetAxis("Horizontal");
+        brakeInput = Input.GetAxis("Jump");
 
         // Turn left and right tires
         frontLeft.localRotation = Quaternion.Euler(frontLeft.localRotation.eulerAngles.x,
-            (_turnInput * maxWheelTurn) - 180, frontLeft.localRotation.eulerAngles.z);
+            (turnInput * maxWheelTurn) - 180, frontLeft.localRotation.eulerAngles.z);
 
         frontRight.localRotation = Quaternion.Euler(frontRight.localRotation.eulerAngles.x,
-            (_turnInput * maxWheelTurn) - 180, frontRight.localRotation.eulerAngles.z);
+            (turnInput * maxWheelTurn) - 180, frontRight.localRotation.eulerAngles.z);
 
-        backLeft.localEulerAngles -= _brakeInput > 0 ? Vector3.zero : new Vector3(0, 0, _velocity / 0.36f);
-        backRight.localEulerAngles -= _brakeInput > 0 ? Vector3.zero : new Vector3(0, 0, _velocity / 0.36f);
-        frontLeft.localEulerAngles += new Vector3(0, 0, _velocity / 0.36f);
-        frontRight.localEulerAngles += new Vector3(0, 0, _velocity / 0.36f);
+        backLeft.localEulerAngles -= brakeInput > 0 ? Vector3.zero : new Vector3(0, 0, velocity / 0.36f);
+        backRight.localEulerAngles -= brakeInput > 0 ? Vector3.zero : new Vector3(0, 0, velocity / 0.36f);
+        frontLeft.localEulerAngles += new Vector3(0, 0, velocity / 0.36f);
+        frontRight.localEulerAngles += new Vector3(0, 0, velocity / 0.36f);
 
         // Debugging
         Debug.DrawRay(transform.position, rb.velocity);
@@ -147,37 +146,37 @@ public class CarController : MonoBehaviour
     {
         transform.position = rb.transform.position;
         rb.velocity = Vector3.MoveTowards(rb.velocity, Vector3.zero, drag * Time.deltaTime);
-        rb.velocity = Vector3.RotateTowards(rb.velocity, transform.forward * Mathf.Sign(_velocity),
+        rb.velocity = Vector3.RotateTowards(rb.velocity, transform.forward * Mathf.Sign(velocity),
             slip * Time.deltaTime * Mathf.Deg2Rad, 0);
 
-        _grounded = false;
+        grounded = false;
         Suspension();
         
-        _driftAngle = Mathf.Abs(Vector3.Angle((_velocity < 0 ? -1 : (_velocity > 0 ? 1 : 0)) * transform.forward, rb.velocity.normalized));
+        driftAngle = Mathf.Abs(Vector3.Angle((velocity < 0 ? -1 : (velocity > 0 ? 1 : 0)) * transform.forward, rb.velocity.normalized));
         
-        if (_grounded && _canMove)
+        if (grounded && canMove)
         {
             // Normal drag
             rb.drag = 0;
-            drag = 12 * (1+_driftAngle/90);
+            drag = 12 * (1+driftAngle/90);
             
        //     print("drift angle:" + _driftAngle);
          //   print("velo:" + _velocity);
         //    print("brake: " + _brakeInput);
             
-            backLeftTrail.emitting = _driftAngle > 10 || (Math.Abs(_velocity) > 0.5f && _brakeInput > 0);
-            backRightTrail.emitting = _driftAngle > 10 || (Math.Abs(_velocity) > 0.5f && _brakeInput > 0);
+            backLeftTrail.emitting = driftAngle > 10 || (Math.Abs(velocity) > 0.5f && brakeInput > 0);
+            backRightTrail.emitting = driftAngle > 10 || (Math.Abs(velocity) > 0.5f && brakeInput > 0);
             
             // Turning is reversed if backing up
-            Turn(_velocity < 0);
+            Turn(velocity < 0);
 
-            if (Mathf.Abs(_speedInput) > 0)
+            if (Mathf.Abs(speedInput) > 0)
             {
                 Accelerate();
             }
 
             // If handbrake is pulled
-            if (_brakeInput > 0)
+            if (brakeInput > 0)
             {
                 Drift();
                 drag *= 1.5f;
@@ -187,7 +186,7 @@ public class CarController : MonoBehaviour
         // If the car is not grounded
         else
         {
-            if (Input.GetKey("x") && _velocity < 0.1)
+            if (Input.GetKey("x") && velocity < 0.1)
             {
                 //rb.AddTorque(transform.forward * flipConst * Mathf.Sign(Vector3.SignedAngle(Vector3.up, transform.up, transform.forward)));
                 if (Vector3.Angle(Vector3.up, transform.forward) < 5 ||
@@ -211,14 +210,14 @@ public class CarController : MonoBehaviour
 
     void DisablePlayerInput()
     {
-        _canMove = false;
+        canMove = false;
         backLeftTrail.emitting = false;
         backRightTrail.emitting = false;
     }
 
     void EnablePlayerInput()
     {
-        _canMove = true;
+        canMove = true;
     }
 
     void Suspension()
@@ -250,23 +249,23 @@ public class CarController : MonoBehaviour
 
                 Debug.DrawLine(rayPoints[i].position, hit.point, Color.red);
 
-                _groundedTires[i] = true;
+                groundedTires[i] = true;
 
             }
             else
             {
                 Debug.DrawLine(rayPoints[i].position, rayPoints[i].position + (wheelRadius + maxLength) * -rayPoints[i].up,
                     Color.green);
-                _groundedTires[i] = false;
+                groundedTires[i] = false;
             }
         }
         // back left and right tires
-        _grounded = _groundedTires[0] && _groundedTires[1] && _groundedTires[2] && _groundedTires[3];
+        grounded = groundedTires[0] && groundedTires[1] && groundedTires[2] && groundedTires[3];
     }
 
     void Accelerate()
     {
-        rb.AddForce(_speedInput * engineTorqueCurve.Evaluate(Math.Abs(_velocity)) * Mathf.Cos(transform.rotation.x) * transform.forward);
+        rb.AddForce(speedInput * engineTorqueCurve.Evaluate(Math.Abs(velocity)) * Mathf.Cos(transform.rotation.x) * transform.forward);
 
         if (rb.velocity.magnitude > maxSpeed)
         {
@@ -278,14 +277,14 @@ public class CarController : MonoBehaviour
     {
         if (reversed)
         {
-            transform.Rotate( -_turnInput * turnStrength *
-                              ((Math.Abs(_velocity) > 1 || Mathf.Abs(Input.GetAxis("Horizontal")) > 1) ? 1 : 0) *
+            transform.Rotate( -turnInput * turnStrength *
+                              ((Math.Abs(velocity) > 1 || Mathf.Abs(Input.GetAxis("Horizontal")) > 1) ? 1 : 0) *
                               Time.deltaTime * transform.up);
         }
         else
         {
-            transform.Rotate( _turnInput * turnStrength *
-                              ((Math.Abs(_velocity) > 1 || Mathf.Abs(Input.GetAxis("Horizontal")) > 1) ? 1 : 0) *
+            transform.Rotate( turnInput * turnStrength *
+                              ((Math.Abs(velocity) > 1 || Mathf.Abs(Input.GetAxis("Horizontal")) > 1) ? 1 : 0) *
                               Time.deltaTime * transform.up);
         }
     }
@@ -293,10 +292,10 @@ public class CarController : MonoBehaviour
     void Drift()
         {
             // Calculate wheel vector offset from forward of car
-            float t1 = (float)Math.Cos((Math.PI / 180) * -_turnInput * maxWheelTurn) * transform.forward.x;
-            float t2 = (float)Math.Sin((Math.PI / 180) * -_turnInput * maxWheelTurn) * transform.forward.z;
-            float t3 = (float)Math.Sin((Math.PI / 180) * -_turnInput * maxWheelTurn) * transform.forward.x;
-            float t4 = (float)Math.Cos((Math.PI / 180) * -_turnInput * maxWheelTurn) * transform.forward.z;
+            float t1 = (float)Math.Cos((Math.PI / 180) * -turnInput * maxWheelTurn) * transform.forward.x;
+            float t2 = (float)Math.Sin((Math.PI / 180) * -turnInput * maxWheelTurn) * transform.forward.z;
+            float t3 = (float)Math.Sin((Math.PI / 180) * -turnInput * maxWheelTurn) * transform.forward.x;
+            float t4 = (float)Math.Cos((Math.PI / 180) * -turnInput * maxWheelTurn) * transform.forward.z;
             
             Vector3 wheelAngle = new Vector3(t1 - t2, 0, t3 + t4);
             
@@ -311,10 +310,10 @@ public class CarController : MonoBehaviour
             //TODO: Calculate torque on car based on relative angles of wheels.
 
             // Initiate the drift by increasing the rotation of the car
-            if (_driftAngle < 180)
+            if (driftAngle < 180)
             {
-                rb.AddTorque(_backWheelArm * (float)Math.Sin((Math.PI / 180)* backWheelVelAngle) * (float)(rb.mass/2) * 9.8f * sideslipFric * torqueconst * -transform.up );
-                rb.AddTorque(_frontWheelArm * (float)Math.Sin((Math.PI / 180) * frontWheelVelAngle) * (float)(rb.mass/2) * 9.8f * sideslipFric * torqueconst * transform.up);
+                rb.AddTorque(backWheelArm * (float)Math.Sin((Math.PI / 180)* backWheelVelAngle) * (float)(rb.mass/2) * 9.8f * sideslipFric * torqueconst * -transform.up );
+                rb.AddTorque(frontWheelArm * (float)Math.Sin((Math.PI / 180) * frontWheelVelAngle) * (float)(rb.mass/2) * 9.8f * sideslipFric * torqueconst * transform.up);
                 // Last term should be replaced with m*g*coeff of fric         
             }
 
@@ -326,8 +325,8 @@ public class CarController : MonoBehaviour
 
     private void UpdateTotalDistance()
     {
-        Stats.Distance += Vector3.Distance(transform.position, _lastPos);
-        _lastPos = transform.position;
+        Stats.Distance += Vector3.Distance(transform.position, lastPos);
+        lastPos = transform.position;
     }
 
     private void ResetPosition()
@@ -339,7 +338,7 @@ public class CarController : MonoBehaviour
 
     private void Pause()
     {
-        _canMove = !_canMove;
+        canMove = !canMove;
         rb.velocity = Vector3.zero;
     }
     

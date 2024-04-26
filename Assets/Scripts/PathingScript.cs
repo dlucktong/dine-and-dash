@@ -6,7 +6,7 @@ public class PathingScript : MonoBehaviour
     [SerializeField] private LineRenderer lineRenderer;
     [SerializeField] private NavMeshAgent agent;
     
-    void Update()
+    private void Update()
     {
         if (agent.hasPath)
         {
@@ -14,7 +14,7 @@ public class PathingScript : MonoBehaviour
         }
     }
 
-    void DrawPath()
+    private void DrawPath()
     {
         lineRenderer.positionCount = agent.path.corners.Length;
         lineRenderer.SetPosition(0, transform.position);

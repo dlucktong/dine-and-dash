@@ -3,63 +3,64 @@ using System.Collections;
 using Cinemachine;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private SpawnManager spawnManager;
     [SerializeField] private RestaurantManager primaryRestaurantManager;
 
-    [SerializeField] private CinemachineVirtualCamera UnfocusedCam;
+    [SerializeField] private CinemachineVirtualCamera unfocusedCam;
 
     [SerializeField] private TextMeshProUGUI tipsDisplay;
     
     [Header("Game Attributes")]
     public float spawnInterval = 0;
     public float deliveriesToday = 0;
-    public float deliveriesMade = 0;
-    public float deliveryTime = 30;
     public float day = 0;
     
-    [Header("Tips")]
-    public float tips = 0;
-    public int[] tipValues = { 1, 2, 3 };
-    public AudioSource deliverySound;
+    public static float Tips = 0;
+    public static readonly int[] tipValues = { 1, 2, 3 };
+    public static AudioSource DeliverySound;
+    
+    public static float DeliveriesMade = 0;
+    public static float DeliveryTime = 120;
 
     public bool tutorial = false; 
     
-    private float _deliveriesSpawned = 1;
-    private float _timer = 0;
-    private bool _playing = false;
+    private float deliveriesSpawned = 1;
+    private float timer = 0;
+    private bool playing = false;
 
     public Transform timerContainer;
 
-    private Settings _defaultSettings;
+    private Settings defaultSettings;
     
-    public delegate void OnGameStart();
-    public static event OnGameStart GameStart;
+    public delegate void GameStart();
+    public static event GameStart OnGameStart;
     
-    public delegate void OnGameOver();
-    public static event OnGameOver GameOver;
+    public delegate void GameOver();
+    public static event GameOver OnGameOver;
     
-    public delegate IEnumerator OnGameOverTimed();
-    public static event OnGameOverTimed GameOverTimed;
+    public delegate IEnumerator GameOverTimed();
+    public static event GameOverTimed OnGameOverTimed;
     
-    public delegate void OnRoundEnd();
-    public static event OnRoundEnd RoundEnd;
+    public delegate void RoundEnd();
+    public static event RoundEnd OnRoundEnd;
 
-    public delegate IEnumerator OnRoundEndTimed();
-    public static event OnRoundEndTimed RoundEndTimed;
+    public delegate IEnumerator RoundEndTimed();
+    public static event RoundEndTimed OnRoundEndTimed;
     
-    public delegate void OnRoundStart();
-    public static event OnRoundStart RoundStart;
+    public delegate void RoundStart();
+    public static event RoundStart OnRoundStart;
 
-    public delegate void OnPause();
-    public static event OnPause Pause;
-
+    public delegate void Pause();
+    public static event Pause OnPause;
 
     void Start()
     {
-        _defaultSettings = new Settings(spawnInterval, deliveriesToday, deliveryTime);
+        DeliverySound = GetComponent<AudioSource>();
+        defaultSettings = new Settings(spawnInterval, deliveriesToday, DeliveryTime);
         if (!tutorial)
         {
             Invoke(nameof(StartNewDay), 2);
@@ -68,99 +69,99 @@ public class GameManager : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (_playing)
+        if (playing)
         {
-            tipsDisplay.text = "Tips: $" + (tips >= 1000 ? Math.Round(tips / 1000f, 2) + "K" : tips);
+            tipsDisplay.text = "Tips: $" + (Tips >= 1000 ? Math.Round(Tips / 1000f, 2) + "K" : Tips);
             
-            if (deliveriesMade == deliveriesToday)
+            if (DeliveriesMade == deliveriesToday)
             {
-                _playing = false;
+                playing = false;
                 StartCoroutine(HandleRoundEnd());
             }
 
-            _timer += Time.deltaTime;
+            timer += Time.deltaTime;
 
-            if (_timer >= (spawnInterval * (timerContainer.childCount)) && _deliveriesSpawned < deliveriesToday)
+            if (timer >= (spawnInterval * (timerContainer.childCount)) && deliveriesSpawned < deliveriesToday)
             {
-                _timer = 0;
+                timer = 0;
                 spawnManager.SpawnDropoffLocation();
                 primaryRestaurantManager.SpawnFoodAtAllLocations();
-                _deliveriesSpawned += 1;
+                deliveriesSpawned += 1;
             }
         }
     }
 
     public void SetupDay()
     {
-        RoundStart?.Invoke();
-        UnfocusedCam.Priority = 1;
+        OnRoundStart?.Invoke();
+        unfocusedCam.Priority = 1;
         Invoke(nameof(StartNewDay), 6);
     }
     
     // Need to update to reflect changes 
     public void SetupNewGame()
     {
-        GameStart?.Invoke();
-        spawnInterval = _defaultSettings.spawnInterval;
-        deliveriesToday = _defaultSettings.deliveriesToday;
-        deliveryTime = _defaultSettings.deliveryTime;
-        deliveriesMade = 0;
+        OnGameStart?.Invoke();
+        spawnInterval = defaultSettings.SpawnInterval;
+        deliveriesToday = defaultSettings.DeliveriesToday;
+        DeliveryTime = defaultSettings.DeliveryTime;
+        DeliveriesMade = 0;
         day = 0;
-        tips = 0;
+        Tips = 0;
 
         Stats.Days = 0;
         Stats.Distance = 0;
         Stats.Deliveries = 0;
         
-        RoundStart?.Invoke();
-        UnfocusedCam.Priority = 1;
+        OnRoundStart?.Invoke();
+        unfocusedCam.Priority = 1;
         Invoke(nameof(StartNewDay), 6);
     }
     
     public void StartNewDay()
     {
         day += 1;
-        _timer = 0;
+        timer = 0;
         
-        deliveriesMade = 0;
+        DeliveriesMade = 0;
         deliveriesToday = day * 2;
         
         spawnManager.SpawnDropoffLocation();
         primaryRestaurantManager.SpawnFoodAtAllLocations();
         
-        _playing = true;
+        playing = true;
         
-        _deliveriesSpawned = 1;
+        deliveriesSpawned = 1;
     }
 
     public IEnumerator handleGameOver()
     {
-        GameOver?.Invoke();
+        OnGameOver?.Invoke();
         DoSlowMotion();
-        _playing = false; 
+        playing = false; 
         yield return new WaitForSecondsRealtime(2);
         Time.timeScale = 1;
         Time.fixedDeltaTime = Time.timeScale * .02f;
-        StartCoroutine(GameOverTimed?.Invoke());
-        UnfocusedCam.Priority = 100;
+        StartCoroutine(OnGameOverTimed?.Invoke());
+        unfocusedCam.Priority = 100;
     }
 
     private IEnumerator HandleRoundEnd()
     {
         // Stop moving
         Stats.Days += 1;
-        RoundEnd?.Invoke();
+        OnRoundEnd?.Invoke();
         DoSlowMotion();
         yield return new WaitForSecondsRealtime(2);
         Time.timeScale = 1;
         Time.fixedDeltaTime = Time.timeScale * .02f;
         
         // Pull up UI/UX
-        StartCoroutine(RoundEndTimed?.Invoke());
-        UnfocusedCam.Priority = 100;
+        StartCoroutine(OnRoundEndTimed?.Invoke());
+        unfocusedCam.Priority = 100;
     }
 
-    private void DoSlowMotion()
+    private static void DoSlowMotion()
     {
         Time.timeScale = 0.08f;
         Time.fixedDeltaTime = Time.timeScale * 0.02f;
@@ -168,11 +169,11 @@ public class GameManager : MonoBehaviour
 
     public void PauseAll()
     {
-        Pause?.Invoke();
+        OnPause?.Invoke();
     }
 
     public void PauseGame()
     {
-        _playing = !_playing;
+        playing = !playing;
     }
 }

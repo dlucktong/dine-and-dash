@@ -6,7 +6,6 @@ class SelectNByTag : ScriptableWizard
 {
     public string tagName = "ExampleTag";
     public int selections = 0;
-    public GameObject yessir;
 
     [MenuItem("SpawnPoints/Select n By Tag...")]
     static void SelectAllOfTagWizard()

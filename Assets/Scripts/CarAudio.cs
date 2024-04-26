@@ -11,32 +11,32 @@ public class CarAudio : MonoBehaviour
 
     [SerializeField] private AnimationCurve gearCurve;
     
-    private bool _mute = false;
-    private float _timer = 0;
-    private bool _paused = false;
+    private bool mute = false;
+    private float timer = 0;
+    private bool paused = false;
     
     private void OnEnable()
     {
-        GameManager.GameOver += MuteAudio;
-        GameManager.RoundEnd += MuteAudio;
-        GameManager.RoundStart += StartAudio;
-        GameManager.Pause += Pause;
+        GameManager.OnGameOver += MuteAudio;
+        GameManager.OnRoundEnd += MuteAudio;
+        GameManager.OnRoundStart += StartAudio;
+        GameManager.OnPause += Pause;
     }
     private void OnDisable()
     {
-        GameManager.GameOver -= MuteAudio;
-        GameManager.RoundEnd -= MuteAudio;
-        GameManager.RoundStart -= StartAudio; 
-        GameManager.Pause -= Pause;
+        GameManager.OnGameOver -= MuteAudio;
+        GameManager.OnRoundEnd -= MuteAudio;
+        GameManager.OnRoundStart -= StartAudio; 
+        GameManager.OnPause -= Pause;
     }
 
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
-        if (_mute)
+        if (mute)
         {
-            _timer += Time.deltaTime / Time.timeScale;
-            if (_timer < 2.6)
+            timer += Time.deltaTime / Time.timeScale;
+            if (timer < 2.6)
             {
                 carAudio.pitch = Mathf.Lerp(carAudio.pitch, 0.35f, 3 * (Time.deltaTime / Time.timeScale));
             }
@@ -47,7 +47,7 @@ public class CarAudio : MonoBehaviour
             }
 
         }
-        else if(!_paused)
+        else if(!paused)
         {
             float currentSpeed = Vector3.Dot(rb.velocity, rb.transform.forward);
             carAudio.volume = Mathf.Clamp(Input.GetAxis("Vertical"), 0.5f, 0.8f);
@@ -65,22 +65,22 @@ public class CarAudio : MonoBehaviour
         }
     }
 
-    void MuteAudio()
+    private void MuteAudio()
     {
-        _mute = true;
-        _timer = 0;
+        mute = true;
+        timer = 0;
     }
 
 
-    void StartAudio()
+    private void StartAudio()
     {
-        _mute = false;
-        _timer = 0;
+        mute = false;
+        timer = 0;
     }
 
-    void Pause()
+    private void Pause()
     {
-        _paused = !_paused;
+        paused = !paused;
     }
     
 }

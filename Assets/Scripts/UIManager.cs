@@ -6,40 +6,40 @@ public class UIManager : MonoBehaviour
 
     [SerializeField] private GameObject upgradeScreen; 
     [SerializeField] private GameObject gameOverScreen;
-    void OnEnable()
+    private void OnEnable()
     {
-        GameManager.RoundEndTimed += DisplayUpgrades;
-        GameManager.RoundStart += HideUpgrades;
-        GameManager.RoundStart += HideGameOver;
-        GameManager.GameOverTimed += DisplayGameOver;
+        GameManager.OnRoundEndTimed += DisplayUpgrades;
+        GameManager.OnRoundStart += HideUpgrades;
+        GameManager.OnRoundStart += HideGameOver;
+        GameManager.OnGameOverTimed += DisplayGameOver;
     }
     
-    void OnDisable()
+    private void OnDisable()
     {
-        GameManager.RoundEndTimed -= DisplayUpgrades;
-        GameManager.RoundStart -= HideUpgrades;
-        GameManager.RoundStart -= HideGameOver;
-        GameManager.GameOverTimed -= DisplayGameOver;
+        GameManager.OnRoundEndTimed -= DisplayUpgrades;
+        GameManager.OnRoundStart -= HideUpgrades;
+        GameManager.OnRoundStart -= HideGameOver;
+        GameManager.OnGameOverTimed -= DisplayGameOver;
     }
     
-    IEnumerator DisplayUpgrades()
+    private IEnumerator DisplayUpgrades()
     {
         yield return new WaitForSecondsRealtime(4);
         upgradeScreen.SetActive(true);
     }
 
-    void HideUpgrades()
+    private void HideUpgrades()
     {
         upgradeScreen.SetActive(false);
     }
 
-    IEnumerator DisplayGameOver()
+    private IEnumerator DisplayGameOver()
     {
         yield return new WaitForSecondsRealtime(4);
         gameOverScreen.SetActive(true);
     }
     
-    void HideGameOver()
+    private void HideGameOver()
     {
         gameOverScreen.SetActive(false);
     }

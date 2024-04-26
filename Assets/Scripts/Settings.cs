@@ -1,13 +1,13 @@
 ﻿public class Settings
 {
-    public float spawnInterval;
-    public float deliveriesToday;
-    public float deliveryTime;
+    public float SpawnInterval;
+    public float DeliveriesToday;
+    public float DeliveryTime;
 
     public Settings(float interval, float today, float time)
     {
-        spawnInterval = interval;
-        deliveriesToday = today;
-        deliveryTime = time;
+        SpawnInterval = interval;
+        DeliveriesToday = today;
+        DeliveryTime = time;
     }
 }

@@ -4,12 +4,12 @@ public class TimerManager : MonoBehaviour
 {
     private void OnEnable()
     {
-        GameManager.GameStart += RemoveTimers;
+        GameManager.OnGameStart += RemoveTimers;
     }
 
     private void OnDisable()
     {
-        GameManager.GameStart -= RemoveTimers;
+        GameManager.OnGameStart -= RemoveTimers;
     }
 
     private void RemoveTimers()

@@ -8,7 +8,7 @@ public class TimerColor : MonoBehaviour
     [SerializeField] private Gradient colors;
     
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         image.color = colors.Evaluate(slider.value);
     }

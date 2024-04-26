@@ -16,10 +16,10 @@ public class GameOverAnimator : MonoBehaviour
     public TextMeshProUGUI days;
     public TextMeshProUGUI distance;
 
-    private string _startingTitle;
-    private string _startingDeliveries;
-    private string _startingDays;
-    private string _startingDistance;
+    private string startingTitle;
+    private string startingDeliveries;
+    private string startingDays;
+    private string startingDistance;
 
     private float charDelay = 0.065f;
     private float statDelay = 0.15f;
@@ -28,10 +28,10 @@ public class GameOverAnimator : MonoBehaviour
     
     private void OnEnable()
     {
-        _startingTitle = titleText.text;
-        _startingDeliveries = deliveries.text + Stats.Deliveries;
-        _startingDays = days.text + Stats.Days;
-        _startingDistance = distance.text + Math.Round(Stats.Distance / 1000f, 2) + "km";
+        startingTitle = titleText.text;
+        startingDeliveries = deliveries.text + Stats.Deliveries;
+        startingDays = days.text + Stats.Days;
+        startingDistance = distance.text + Math.Round(Stats.Distance / 1000f, 2) + "km";
         
         titleText.text = "";
         deliveries.text = "";
@@ -54,7 +54,7 @@ public class GameOverAnimator : MonoBehaviour
     {
         typingSound.pitch = 1.5f;
         yield return new WaitForSecondsRealtime(1);
-        foreach (var c in _startingTitle)
+        foreach (var c in startingTitle)
         {
             titleText.text += c;
             if(c != ' ') typingSound.Play();
@@ -63,7 +63,7 @@ public class GameOverAnimator : MonoBehaviour
         
         yield return new WaitForSecondsRealtime(sectionDelay);
         
-        foreach (var c in _startingDeliveries)
+        foreach (var c in startingDeliveries)
         {
             deliveries.text += c;
             if(c != ' ') typingSound.Play();
@@ -78,7 +78,7 @@ public class GameOverAnimator : MonoBehaviour
         }
         yield return new WaitForSecondsRealtime(sectionDelay);
         typingSound.pitch = 1.5f;
-        foreach (var c in _startingDays)
+        foreach (var c in startingDays)
         {
             days.text += c;
             if(c != ' ') typingSound.Play();
@@ -93,7 +93,7 @@ public class GameOverAnimator : MonoBehaviour
         }
         yield return new WaitForSecondsRealtime(sectionDelay);
         typingSound.pitch = 1.5f;
-        foreach (var c in _startingDistance)
+        foreach (var c in startingDistance)
         {
             distance.text += c;
             if(c != ' ') typingSound.Play();
@@ -113,7 +113,7 @@ public class GameOverAnimator : MonoBehaviour
 
     }
 
-    void Update()
+    private void Update()
     {
         if (transform.gameObject.activeInHierarchy)
         {

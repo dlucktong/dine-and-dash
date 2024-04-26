@@ -6,11 +6,11 @@ public class FoodManager : MonoBehaviour
 
     private void OnEnable()
     {
-        GameManager.GameStart += ResetFood;
+        GameManager.OnGameStart += ResetFood;
     }
     private void OnDisable()
     {
-        GameManager.GameStart -= ResetFood;
+        GameManager.OnGameStart -= ResetFood;
     }
 
     public void RemoveTop()
@@ -19,7 +19,7 @@ public class FoodManager : MonoBehaviour
         Destroy(transform.GetChild(transform.childCount - 1).gameObject);;
     }
 
-    public void ResetFood()
+    private void ResetFood()
     {
         while(foodCarrying > 0)
         {

@@ -8,33 +8,33 @@ public class DeliveryManager : MonoBehaviour
     [SerializeField] private FoodManager foodManager;
     [SerializeField] private Transform player;
     [SerializeField] private Gradient colors;
-    [SerializeField] private GameManager gameManager;
     public float timeRemaining;
     public GameObject timerObject;
     public GameObject minimapIconPrefab;
     public Transform minimap;
 
-    private Slider _slider;
-    private TextMeshProUGUI _distanceText;
-    private TextMeshProUGUI _timeText;
-    private Renderer _renderer;
-    private Target _target;
-    private Image _icon;
-    private GameObject _indicator;
-    private bool _gameOver = false;
-    private float _totalTime;
+    private Slider slider;
+    private TextMeshProUGUI distanceText;
+    private TextMeshProUGUI timeText;
+    private Renderer spawnRenderer;
+    private Target target;
+    private Image icon;
+    private GameObject indicator;
+    private bool gameOver = false;
+    private float totalTime;
     public float distanceAdder = 1;
     [FormerlySerializedAs("_paused")] public bool paused = false;
-
-
+    private GameManager gm;
+    
     private void Start()
     {
-        GameManager.Pause += Pause;
+        gm = FindObjectOfType<GameManager>();
+        GameManager.OnPause += Pause;
     }
 
     private void OnDisable()
     {
-        GameManager.Pause -= Pause;
+        GameManager.OnPause -= Pause;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -44,56 +44,56 @@ public class DeliveryManager : MonoBehaviour
             foodManager.RemoveTop();
             transform.gameObject.SetActive(false);
             Destroy(timerObject);
-            Destroy(_indicator);
-            gameManager.deliveriesMade += 1;
+            Destroy(indicator);
+            GameManager.DeliveriesMade += 1;
             Stats.Deliveries += 1;
 
-            int tipIndex = Mathf.FloorToInt(timeRemaining / (_totalTime / gameManager.tipValues.Length));
+            int tipIndex = Mathf.FloorToInt(timeRemaining / (totalTime / GameManager.tipValues.Length));
 
-            gameManager.tips += gameManager.tipValues[tipIndex];
-            gameManager.deliverySound.Play();
+            GameManager.Tips += GameManager.tipValues[tipIndex];
+            GameManager.DeliverySound.Play();
         }
     }
 
     private void OnEnable()
     {
-        _slider = timerObject.GetComponent<Slider>();
-        _indicator = Instantiate(minimapIconPrefab, minimap);
-        _indicator.transform.localPosition = new Vector2((transform.position.x - 224) * 786 / 1360,(transform.position.z - 168) * 786 / 1344);
-        _icon = _indicator.GetComponent<Image>();
+        slider = timerObject.GetComponent<Slider>();
+        indicator = Instantiate(minimapIconPrefab, minimap);
+        indicator.transform.localPosition = new Vector2((transform.position.x - 224) * 786 / 1360,(transform.position.z - 168) * 786 / 1344);
+        icon = indicator.GetComponent<Image>();
         var texts = timerObject.GetComponentsInChildren<TextMeshProUGUI>();
-        _timeText = texts[0];
-        _distanceText = texts[1];
-        _renderer = transform.GetComponent<Renderer>();
-        _target = transform.GetComponent<Target>();
-        _totalTime = gameManager.deliveryTime + distanceAdder;
-        timeRemaining = _totalTime;
+        timeText = texts[0];
+        distanceText = texts[1];
+        spawnRenderer = transform.GetComponent<Renderer>();
+        target = transform.GetComponent<Target>();
+        totalTime = GameManager.DeliveryTime + distanceAdder;
+        timeRemaining = totalTime;
     }
 
-    void Update()
+    private void Update()
     {
-        if (!_gameOver && !paused)
+        if (!gameOver && !paused)
         {
             if (timeRemaining > 0)
             {
                 Vector3 playerPosition = player.position;
 
-                Color currentColor = colors.Evaluate(timeRemaining / _totalTime);
+                Color currentColor = colors.Evaluate(timeRemaining / totalTime);
 
-                _renderer.material.SetColor("_EmissionColor", currentColor);
-                _target.TargetColor = currentColor;
-                _icon.color = currentColor;
+                spawnRenderer.material.SetColor("_EmissionColor", currentColor);
+                target.TargetColor = currentColor;
+                icon.color = currentColor;
 
                 timeRemaining -= Time.deltaTime;
 
-                _slider.value = timeRemaining / _totalTime;
-                _timeText.text = "" + Mathf.Round(timeRemaining) + "s";
-                _distanceText.text = "" + Mathf.Round(Vector3.Distance(playerPosition, transform.position)) + "m";
+                slider.value = timeRemaining / totalTime;
+                timeText.text = "" + Mathf.Round(timeRemaining) + "s";
+                distanceText.text = "" + Mathf.Round(Vector3.Distance(playerPosition, transform.position)) + "m";
             }
             else
             {
-                StartCoroutine(gameManager.handleGameOver());
-                _gameOver = true;
+                StartCoroutine(gm.handleGameOver());
+                gameOver = true;
             }
         
         }

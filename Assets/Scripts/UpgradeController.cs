@@ -20,12 +20,12 @@ public class UpgradeController : MonoBehaviour
 
     void OnEnable()
     {
-        GameManager.RoundEnd += GenerateRandomUpgrades; 
+        GameManager.OnRoundEnd += GenerateRandomUpgrades; 
     }
 
     void OnDisable()
     {
-        GameManager.RoundEnd -= GenerateRandomUpgrades; 
+        GameManager.OnRoundEnd -= GenerateRandomUpgrades; 
     }
 
     private void Start()
@@ -34,7 +34,7 @@ public class UpgradeController : MonoBehaviour
         InitializeButtonIndices();
     }
 
-    public void GenerateRandomUpgrades()
+    private void GenerateRandomUpgrades()
     {
         if (upgradeButtons.Length < 3 || possibleUpgrades.Count < 3)
         {

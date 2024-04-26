@@ -1,27 +1,36 @@
+using System;
 using UnityEngine;
 
 public class RestaurantManager : MonoBehaviour
 {
     [SerializeField] private FoodManager fm;
     [SerializeField] private GameObject pizzaBox;
+    public Transform player;
     
-    private delegate void OnRemoveAll();
-    private static event OnRemoveAll RemoveAll;
-    private delegate void OnSpawnAll();
-    private static event OnSpawnAll SpawnAll;
+    private delegate void RemoveAll();
+    private static event RemoveAll OnRemoveAll;
+    private delegate void SpawnAll();
+    private static event SpawnAll OnSpawnAll;
+
+    private Target target;
+
+    private void Start()
+    {
+        target = GetComponent<Target>();
+    }
 
     private void OnEnable()
     {
-        GameManager.GameStart += RemoveAllFood;
-        RemoveAll += Remove;
-        SpawnAll += SpawnFood;
+        GameManager.OnGameStart += RemoveAllFood;
+        OnRemoveAll += Remove;
+        OnSpawnAll += SpawnFood;
     }
 
     private void OnDisable()
     {
-        GameManager.GameStart -= RemoveAllFood;
-        RemoveAll -= Remove;
-        SpawnAll -= SpawnFood;
+        GameManager.OnGameStart -= RemoveAllFood;
+        OnRemoveAll -= Remove;
+        OnSpawnAll -= SpawnFood;
     }
 
     private void OnTriggerStay(Collider other)
@@ -36,13 +45,13 @@ public class RestaurantManager : MonoBehaviour
                 transform.GetChild(0).parent = fm.transform;
                 fm.foodCarrying += 1;
             }
-            RemoveAll?.Invoke();
+            OnRemoveAll?.Invoke();
         }
     }
 
     public void SpawnFoodAtAllLocations()
     {
-        SpawnAll?.Invoke();
+        OnSpawnAll?.Invoke();
     }
 
     public void SpawnFood()
@@ -54,7 +63,7 @@ public class RestaurantManager : MonoBehaviour
 
     private void RemoveAllFood()
     {
-        RemoveAll?.Invoke();
+        OnRemoveAll?.Invoke();
     }
 
     private void Remove()
@@ -62,6 +71,18 @@ public class RestaurantManager : MonoBehaviour
         for(int i = transform.childCount - 1; i >= 0; i--)
         {
             Destroy(transform.GetChild(i).gameObject);
+        }
+    }
+    
+    private void Update()
+    {
+        if (Vector3.Distance(player.position, transform.position) > 300)
+        {
+            target.gameObject.SetActive(false);
+        }
+        else
+        {
+            target.gameObject.SetActive(true);
         }
     }
 }

@@ -14,44 +14,44 @@ public class SoundSettings : MonoBehaviour
     public Image audioButtonImage;
     public Image musicButtonImage;
 
-    private bool _masterMuted;
-    private bool _musicMuted;
-    private float _defaultMusicVolume;
+    private bool masterMuted;
+    private bool musicMuted;
+    private float defaultMusicVolume;
 
     private void Start()
     {
-        musicMixer.audioMixer.GetFloat("MusicVolume", out _defaultMusicVolume);
+        musicMixer.audioMixer.GetFloat("MusicVolume", out defaultMusicVolume);
     }
 
     public void MuteAll()
     {
-        if (_masterMuted)
+        if (masterMuted)
         {
             master.audioMixer.SetFloat("MasterVolume", 0);
             audioButtonImage.sprite = unmute;
-            _masterMuted = !_masterMuted;
+            masterMuted = !masterMuted;
         }
         else
         {
             master.audioMixer.SetFloat("MasterVolume", -80);
             audioButtonImage.sprite = mute;
-            _masterMuted = !_masterMuted;
+            masterMuted = !masterMuted;
         }
     }
 
     public void MuteMusic()
     {
-        if (_musicMuted)
+        if (musicMuted)
         {
-            musicMixer.audioMixer.SetFloat("MusicVolume", _defaultMusicVolume);
+            musicMixer.audioMixer.SetFloat("MusicVolume", defaultMusicVolume);
             musicButtonImage.sprite = music;
-            _musicMuted = !_musicMuted;
+            musicMuted = !musicMuted;
         }
         else
         {
             musicMixer.audioMixer.SetFloat("MusicVolume", -80);
             musicButtonImage.sprite = nomusic;
-            _musicMuted = !_musicMuted;
+            musicMuted = !musicMuted;
         }
     }
 }

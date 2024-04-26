@@ -10,17 +10,17 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] private Transform player;
     [SerializeField] private List<Transform> restaurants;
 
-    private float _restaurantDistance = Mathf.Infinity;
-    private float _playerDistance;
+    private float restaurantDistance = Mathf.Infinity;
+    private float playerDistance;
     
     private void OnEnable()
     {
-        GameManager.GameStart += SetAllInactive;
+        GameManager.OnGameStart += SetAllInactive;
     }
     
     private void OnDisable()
     {
-        GameManager.GameStart -= SetAllInactive;
+        GameManager.OnGameStart -= SetAllInactive;
     }
 
     public void SpawnDropoffLocation()
@@ -33,14 +33,14 @@ public class SpawnManager : MonoBehaviour
         
         foreach (Transform restaurant in restaurants)
         {
-            _restaurantDistance = Mathf.Min(_restaurantDistance, Vector3.Distance(restaurant.position, dropoffLocation.transform.position));
+            restaurantDistance = Mathf.Min(restaurantDistance, Vector3.Distance(restaurant.position, dropoffLocation.transform.position));
         }
-        _playerDistance = Vector3.Distance(player.position, dropoffLocation.transform.position);
+        playerDistance = Vector3.Distance(player.position, dropoffLocation.transform.position);
         
         DeliveryManager deliveryManager = dropoffLocation.GetComponent<DeliveryManager>();
         
         deliveryManager.timerObject = Instantiate(timerDisplay, timerContainer);
-        deliveryManager.distanceAdder = (_playerDistance + _restaurantDistance) / 20;
+        deliveryManager.distanceAdder = (playerDistance + restaurantDistance) / 20;
         dropoffLocation.SetActive(true);
         chime.Play();
     }
