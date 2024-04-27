@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
+using UnityEngine.InputSystem;
 
 public class CarController : MonoBehaviour
 {
@@ -21,7 +22,6 @@ public class CarController : MonoBehaviour
     public float slip = 45;
     public float torqueconst = 100;
     public float sideslipFric = 0.2f;
-    public float flipConst = 10000f;
     public AnimationCurve engineTorqueCurve;
 
     [Header("Suspension Settings")] [SerializeField]
@@ -58,6 +58,17 @@ public class CarController : MonoBehaviour
     private List<GameObject> roads;
 
     private static Transform rbTransform;
+    public PlayerInputActions playerControls;
+
+    private InputAction move;
+    private InputAction drift;
+    private InputAction reset;
+    private Vector2 moveDirection;
+
+    private void Awake()
+    {
+        playerControls = new PlayerInputActions();
+    }
 
     void Start()
     {
@@ -81,6 +92,13 @@ public class CarController : MonoBehaviour
         GameManager.OnRoundEnd += DisablePlayerInput;
         GameManager.OnRoundStart += EnablePlayerInput;
         GameManager.OnPause += Pause;
+
+        move = playerControls.Player.Move;
+        drift = playerControls.Player.Drift;
+        reset = playerControls.Player.Reset;
+        move.Enable();
+        drift.Enable();
+        reset.Enable();
     }
 
     private void OnDisable()
@@ -90,6 +108,11 @@ public class CarController : MonoBehaviour
         GameManager.OnRoundEnd -= DisablePlayerInput;
         GameManager.OnRoundStart -= EnablePlayerInput;
         GameManager.OnPause -= Pause;
+        
+        
+        move.Disable();
+        drift.Disable();
+        reset.Disable();
     }
 
     void Update()
@@ -99,19 +122,22 @@ public class CarController : MonoBehaviour
         speedDisplay.text = "Speed: " + Math.Round(Math.Abs(velocity), 2);
 
         speedInput = 0;
+
+        moveDirection = move.ReadValue<Vector2>();
+        
         // Accelerate
-        if (Input.GetAxis("Vertical") > 0)
+        if (moveDirection.y > 0)
         {
-            speedInput += Input.GetAxis("Vertical") * forwardAcceleration * 300;
+            speedInput += moveDirection.y * forwardAcceleration * 300;
         }
 
         // Reverse
-        else if (Input.GetAxis("Vertical") < 0)
+        else if (moveDirection.y < 0)
         {
-            speedInput += Input.GetAxis("Vertical") * reverseAcceleration * 300;
+            speedInput += moveDirection.y * reverseAcceleration * 300;
         }
 
-        if (Input.GetKeyDown(KeyCode.R))
+        if (reset.ReadValue<float>() > 0)
         {
             // Sort the roads by closest, take the first one
             // Surprisingly not slow in my testing?
@@ -121,8 +147,9 @@ public class CarController : MonoBehaviour
         }
 
         // Inputs for turn and handbrake
-        turnInput = Input.GetAxis("Horizontal");
-        brakeInput = Input.GetAxis("Jump");
+        Debug.Log(moveDirection.x);
+        turnInput = moveDirection.x;
+        brakeInput = drift.ReadValue<float>();
 
         // Turn left and right tires
         frontLeft.localRotation = Quaternion.Euler(frontLeft.localRotation.eulerAngles.x,
@@ -186,19 +213,6 @@ public class CarController : MonoBehaviour
         // If the car is not grounded
         else
         {
-            if (Input.GetKey("x") && velocity < 0.1)
-            {
-                //rb.AddTorque(transform.forward * flipConst * Mathf.Sign(Vector3.SignedAngle(Vector3.up, transform.up, transform.forward)));
-                if (Vector3.Angle(Vector3.up, transform.forward) < 5 ||
-                    Vector3.Angle(Vector3.down, transform.forward) < 5)
-                {
-                    rb.AddTorque(transform.right * flipConst);
-                }
-                else
-                {
-                    rb.AddTorque(transform.forward * flipConst);
-                }
-            }
             // Should apply different drag and gravity force but idt this actually works atm.           
             rb.AddForce(Vector3.up * -3000);
         
@@ -278,13 +292,13 @@ public class CarController : MonoBehaviour
         if (reversed)
         {
             transform.Rotate( -turnInput * turnStrength *
-                              ((Math.Abs(velocity) > 1 || Mathf.Abs(Input.GetAxis("Horizontal")) > 1) ? 1 : 0) *
+                              ((Math.Abs(velocity) > 1 || Mathf.Abs(moveDirection.x) > 1) ? 1 : 0) *
                               Time.deltaTime * transform.up);
         }
         else
         {
             transform.Rotate( turnInput * turnStrength *
-                              ((Math.Abs(velocity) > 1 || Mathf.Abs(Input.GetAxis("Horizontal")) > 1) ? 1 : 0) *
+                              ((Math.Abs(velocity) > 1 || Mathf.Abs(moveDirection.x) > 1) ? 1 : 0) *
                               Time.deltaTime * transform.up);
         }
     }

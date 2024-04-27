@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class CarAudio : MonoBehaviour
 {
@@ -14,6 +15,14 @@ public class CarAudio : MonoBehaviour
     private bool mute = false;
     private float timer = 0;
     private bool paused = false;
+
+    public PlayerInputActions playerInput;
+    private InputAction move;
+
+    private void Awake()
+    {
+        playerInput = new PlayerInputActions();
+    }
     
     private void OnEnable()
     {
@@ -21,6 +30,9 @@ public class CarAudio : MonoBehaviour
         GameManager.OnRoundEnd += MuteAudio;
         GameManager.OnRoundStart += StartAudio;
         GameManager.OnPause += Pause;
+
+        move = playerInput.Player.Move;
+        move.Enable();
     }
     private void OnDisable()
     {
@@ -28,6 +40,8 @@ public class CarAudio : MonoBehaviour
         GameManager.OnRoundEnd -= MuteAudio;
         GameManager.OnRoundStart -= StartAudio; 
         GameManager.OnPause -= Pause;
+        
+        move.Disable();
     }
 
 
@@ -50,7 +64,7 @@ public class CarAudio : MonoBehaviour
         else if(!paused)
         {
             float currentSpeed = Vector3.Dot(rb.velocity, rb.transform.forward);
-            carAudio.volume = Mathf.Clamp(Input.GetAxis("Vertical"), 0.5f, 0.8f);
+            carAudio.volume = Mathf.Clamp(move.ReadValue<Vector2>().y, 0.5f, 0.8f);
             carAudio.pitch = gearCurve.Evaluate(Mathf.Abs(currentSpeed) / car.maxSpeed);
         }
         else

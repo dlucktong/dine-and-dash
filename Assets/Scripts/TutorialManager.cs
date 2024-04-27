@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class TutorialManager : MonoBehaviour
 {
@@ -36,6 +38,7 @@ public class TutorialManager : MonoBehaviour
     private float charDelay = 0.032f;
     private bool canSkip = false;
     private float timer;
+
     private void Start()
     {
         text.text = string.Empty;

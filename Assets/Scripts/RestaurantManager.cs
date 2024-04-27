@@ -5,19 +5,12 @@ public class RestaurantManager : MonoBehaviour
 {
     [SerializeField] private FoodManager fm;
     [SerializeField] private GameObject pizzaBox;
-    public Transform player;
     
     private delegate void RemoveAll();
     private static event RemoveAll OnRemoveAll;
     private delegate void SpawnAll();
     private static event SpawnAll OnSpawnAll;
-
-    private Target target;
-
-    private void Start()
-    {
-        target = GetComponent<Target>();
-    }
+    
 
     private void OnEnable()
     {
@@ -71,18 +64,6 @@ public class RestaurantManager : MonoBehaviour
         for(int i = transform.childCount - 1; i >= 0; i--)
         {
             Destroy(transform.GetChild(i).gameObject);
-        }
-    }
-    
-    private void Update()
-    {
-        if (Vector3.Distance(player.position, transform.position) > 300)
-        {
-            target.gameObject.SetActive(false);
-        }
-        else
-        {
-            target.gameObject.SetActive(true);
         }
     }
 }
