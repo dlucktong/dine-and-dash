@@ -137,6 +137,7 @@ public class CarController : MonoBehaviour
             speedInput += moveDirection.y * reverseAcceleration * 300;
         }
 
+        // TODO: Add reset cooldown to prevent teleport spamming
         if (reset.ReadValue<float>() > 0)
         {
             // Sort the roads by closest, take the first one

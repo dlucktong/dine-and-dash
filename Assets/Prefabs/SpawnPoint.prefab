@@ -151,10 +151,11 @@ MonoBehaviour:
     m_ColorSpace: -1
     m_NumColorKeys: 3
     m_NumAlphaKeys: 2
-  gameManager: {fileID: 0}
-  timeRemaining: 0
+  timeRemaining: 30
   timerObject: {fileID: 0}
-  distanceMultiplier: 1
+  minimapIconPrefab: {fileID: 0}
+  minimap: {fileID: 0}
+  distanceAdder: 1
   paused: 0
 --- !u!114 &391904558777145644
 MonoBehaviour:
