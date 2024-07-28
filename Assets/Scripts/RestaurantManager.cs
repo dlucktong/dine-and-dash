@@ -5,12 +5,16 @@ public class RestaurantManager : MonoBehaviour
 {
     [SerializeField] private FoodManager fm;
     [SerializeField] private GameObject pizzaBox;
-    
+    [SerializeField] private Target target;
+
     private delegate void RemoveAll();
+
     private static event RemoveAll OnRemoveAll;
+
     private delegate void SpawnAll();
+
     private static event SpawnAll OnSpawnAll;
-    
+
 
     private void OnEnable()
     {
@@ -38,6 +42,7 @@ public class RestaurantManager : MonoBehaviour
                 transform.GetChild(0).parent = fm.transform;
                 fm.foodCarrying += 1;
             }
+
             OnRemoveAll?.Invoke();
         }
     }
@@ -61,9 +66,14 @@ public class RestaurantManager : MonoBehaviour
 
     private void Remove()
     {
-        for(int i = transform.childCount - 1; i >= 0; i--)
+        for (int i = transform.childCount - 1; i >= 0; i--)
         {
             Destroy(transform.GetChild(i).gameObject);
         }
+    }
+
+    private void Update()
+    {
+        target.enabled = transform.childCount != 0;
     }
 }

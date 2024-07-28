@@ -17,6 +17,7 @@ public class CarController : MonoBehaviour
     public float reverseAcceleration = 4;
     public float maxSpeed = 50;
     public float turnStrength = 45;
+    public float turnStrengthMaxSpeed = 35;
     public float maxWheelTurn = 30;
     public float drag = 6;
     public float slip = 45;
@@ -140,6 +141,8 @@ public class CarController : MonoBehaviour
         // TODO: Add reset cooldown to prevent teleport spamming
         if (reset.ReadValue<float>() > 0)
         {
+            backLeftTrail.emitting = false;
+            backRightTrail.emitting = false;
             // Sort the roads by closest, take the first one
             // Surprisingly not slow in my testing?
             roads.Sort((a,b) => Vector3.Distance(a.transform.position, transform.position) < Vector3.Distance(b.transform.position, transform.position) ? -1 : 1);
@@ -148,7 +151,6 @@ public class CarController : MonoBehaviour
         }
 
         // Inputs for turn and handbrake
-        Debug.Log(moveDirection.x);
         turnInput = moveDirection.x;
         brakeInput = drift.ReadValue<float>();
 
@@ -192,8 +194,8 @@ public class CarController : MonoBehaviour
          //   print("velo:" + _velocity);
         //    print("brake: " + _brakeInput);
             
-            backLeftTrail.emitting = driftAngle > 10 || (Math.Abs(velocity) > 0.5f && brakeInput > 0);
-            backRightTrail.emitting = driftAngle > 10 || (Math.Abs(velocity) > 0.5f && brakeInput > 0);
+            backLeftTrail.emitting = (driftAngle > 10 || (Math.Abs(velocity) > 0.5f && brakeInput > 0)) && grounded;
+            backRightTrail.emitting = (driftAngle > 10 || (Math.Abs(velocity) > 0.5f && brakeInput > 0)) && grounded;
             
             // Turning is reversed if backing up
             Turn(velocity < 0);
@@ -280,7 +282,7 @@ public class CarController : MonoBehaviour
 
     void Accelerate()
     {
-        rb.AddForce(speedInput * engineTorqueCurve.Evaluate(Math.Abs(velocity)) * Mathf.Cos(transform.rotation.x) * transform.forward);
+        rb.AddForce(speedInput * engineTorqueCurve.Evaluate(Math.Abs(velocity)) * transform.forward);
 
         if (rb.velocity.magnitude > maxSpeed)
         {
@@ -292,13 +294,13 @@ public class CarController : MonoBehaviour
     {
         if (reversed)
         {
-            transform.Rotate( -turnInput * turnStrength *
+            transform.Rotate( -turnInput * Mathf.Lerp(turnStrength, turnStrengthMaxSpeed, rb.velocity.magnitude/maxSpeed) *
                               ((Math.Abs(velocity) > 1 || Mathf.Abs(moveDirection.x) > 1) ? 1 : 0) *
                               Time.deltaTime * transform.up);
         }
         else
         {
-            transform.Rotate( turnInput * turnStrength *
+            transform.Rotate( turnInput * Mathf.Lerp(turnStrength, turnStrengthMaxSpeed, rb.velocity.magnitude/maxSpeed) *
                               ((Math.Abs(velocity) > 1 || Mathf.Abs(moveDirection.x) > 1) ? 1 : 0) *
                               Time.deltaTime * transform.up);
         }

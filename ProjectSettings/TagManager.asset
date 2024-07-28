@@ -7,6 +7,9 @@ TagManager:
   - Road
   - Building
   - map
+  - Junction
+  - Tsplit
+  - Curve
   layers:
   - Default
   - TransparentFX
