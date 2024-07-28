@@ -32,7 +32,7 @@ public class RestaurantManager : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.GetComponent<Rigidbody>() != null)
+        if (other.CompareTag("Player"))
         {
             while (transform.childCount > 0)
             {

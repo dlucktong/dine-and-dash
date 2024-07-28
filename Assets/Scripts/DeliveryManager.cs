@@ -39,7 +39,7 @@ public class DeliveryManager : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.GetComponent<Rigidbody>() != null && foodManager.foodCarrying > 0)
+        if (other.CompareTag("Player") && foodManager.foodCarrying > 0)
         {
             foodManager.RemoveTop();
             transform.gameObject.SetActive(false);

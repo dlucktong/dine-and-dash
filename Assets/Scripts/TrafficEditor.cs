@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(TrafficController))]
+[CustomEditor(typeof(TrafficMapper))]
 public class TrafficEditor : Editor
 {
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
 
-        TrafficController tc = (TrafficController)target;
+        TrafficMapper tc = (TrafficMapper)target;
         if (GUILayout.Button("Bake Roads"))
         {
             tc.GenerateLineSet();

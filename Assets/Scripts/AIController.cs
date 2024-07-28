@@ -1,10 +1,6 @@
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Numerics;
 using DefaultNamespace;
-using Unity.Mathematics;
 using UnityEngine;
 using Quaternion = UnityEngine.Quaternion;
 using Random = UnityEngine.Random;
@@ -12,13 +8,13 @@ using Vector3 = UnityEngine.Vector3;
 
 public class AIController : MonoBehaviour
 {
-    private Dictionary<Line, List<Line>> dictionary = new Dictionary<Line, List<Line>>();
-    
     private Line currentLine;
     private char currentDirection;
     private Line nextLine;
     private char nextLineDir;
 
+    private Dictionary<Line, List<Line>> adjList;
+        
     // private char nextDirection;
     [SerializeField] private Rigidbody rb;
 
@@ -45,21 +41,20 @@ public class AIController : MonoBehaviour
     
     void Start()
     {
-        GetDictionaryFromFile();
+        adjList = transform.parent.GetComponent<TrafficController>().AdjList;
         frontLeft = transform.GetChild(1);
         frontRight = transform.GetChild(2);
         backLeft = transform.GetChild(3);
         backRight = transform.GetChild(4);
         
         // Get a random line
-        currentLine = dictionary.Keys.ToList()[Random.Range(0, dictionary.Count)];
-        nextLine = dictionary[currentLine][Random.Range(0, dictionary[currentLine].Count)];
+        currentLine = adjList.Keys.ToList()[transform.GetSiblingIndex()*2];
+        nextLine = adjList[currentLine][Random.Range(0, adjList[currentLine].Count)];
             
         currentDirection = currentLine.Dir;
         nextLineDir = nextLine.Dir;
         
         transform.position = new Vector3(currentLine.StartPos().x, 50, currentLine.StartPos().z);
-
     }
 
     // Update is called once per frame
@@ -126,17 +121,17 @@ public class AIController : MonoBehaviour
             // If moving vertically North, next line must have a center point > your current z position
             // If moving horizontally East, next line must have a center point > current x position
             // If moving vertically South, next line must have a center point < current position
-            int idx = Random.Range(0, dictionary[currentLine].Count);
+            int idx = Random.Range(0, adjList[currentLine].Count);
             float relevantPos = currentDirection is 'N' or 'S' ? transform.position.z : transform.position.x;
             int sign = currentDirection is 'N' or 'E' ? 1 : -1;
-            while (sign * dictionary[currentLine][idx].Center < sign * relevantPos)
+            while (sign * adjList[currentLine][idx].Center < sign * relevantPos)
             {
                 // If you're traveling N or East, you need a random number b/t [idx+1, count)
                 // Else need a number b/t [0, idx)
-                idx = sign == 1 ? Random.Range(idx + 1, dictionary[currentLine].Count()) : Random.Range(0, idx);
+                idx = sign == 1 ? Random.Range(idx + 1, adjList[currentLine].Count()) : Random.Range(0, idx);
             }
 
-            nextLine = dictionary[currentLine][idx];
+            nextLine = adjList[currentLine][idx];
             nextLineDir = nextLine.Dir;
         }
         
@@ -186,52 +181,4 @@ public class AIController : MonoBehaviour
         grounded = groundedTires[0] && groundedTires[1] && groundedTires[2] && groundedTires[3];
     }
     
-    void GetDictionaryFromFile()
-    {
-        var list = new List<Line>();
-        var lines = File.ReadLines("Assets/Pathing/adjlist.txt");
-        foreach (var line in lines)
-        {
-            if (line == "")
-            {
-                continue;
-            }
-
-            string[] kv = line.Split(":");
-            int idx = list.FindIndex(l => l.ToString() == kv[0]);
-
-            Line key;
-            if (idx != -1)
-            {
-                key = list[idx];
-            }
-            else
-            {
-                key = new Line(kv[0]);
-                list.Add(key);
-            }
-
-            dictionary.Add(key, new List<Line>());
-
-            string[] adjLines = kv[1].Split("/");
-            foreach (var adj in adjLines)
-            {
-                idx = list.FindIndex(l => l.ToString() == adj);
-                if (idx != -1)
-                {
-                    dictionary[key].Add(list[idx]);
-                }
-                else
-                {
-                    Line itm = new Line(adj);
-                    dictionary[key].Add(itm);
-                    list.Add(itm);
-                }
-
-                dictionary[key].Sort((l1, l2) => l1.Center < l2.Center ? -1 : 1);
-            }
-
-        }
-
-    }
 }
