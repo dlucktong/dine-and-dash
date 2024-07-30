@@ -114,17 +114,17 @@ public class AIController : MonoBehaviour
         // If on a new line, select next from list
         else
         {
-            rb.velocity = Vector3.zero;
+            // rb.velocity = Vector3.zero;
             currentLine = nextLine;
             currentDirection = currentLine.Dir;
 
-            // If moving vertically North, next line must have a center point > your current z position
-            // If moving horizontally East, next line must have a center point > current x position
-            // If moving vertically South, next line must have a center point < current position
+            // If now moving vertically North, next line must have a center point > your current z position + 5
+            // If now moving horizontally East, next line must have a center point > current x position + 5 
+            // If now moving vertically South, next line must have a center point < current position - 5
             int idx = Random.Range(0, adjList[currentLine].Count);
             float relevantPos = currentDirection is 'N' or 'S' ? transform.position.z : transform.position.x;
             int sign = currentDirection is 'N' or 'E' ? 1 : -1;
-            while (sign * adjList[currentLine][idx].Center < sign * relevantPos)
+            while (sign * adjList[currentLine][idx].Center < sign * relevantPos + 5)
             {
                 // If you're traveling N or East, you need a random number b/t [idx+1, count)
                 // Else need a number b/t [0, idx)
