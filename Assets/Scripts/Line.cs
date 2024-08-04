@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace DefaultNamespace
 {
@@ -82,6 +83,26 @@ namespace DefaultNamespace
         public Vector3 EndPos()
         {
             return type == 'V' ? new Vector3(Center, 100, End) : new Vector3(End, 100, Center);
+        }
+
+        public Vector2 RandomPoint()
+        {
+            if (dir == 'N')
+            {
+                return new Vector2(center, Random.Range(start, end-10));
+            }
+
+            if (dir == 'S')
+            {
+                return new Vector2(center, Random.Range(end+10, start));
+            }
+
+            if (dir == 'E')
+            {
+                return new Vector2(Random.Range(start, end-10), center);
+            }
+
+            return new Vector2(Random.Range(end+10, start), center);
         }
         
     }

@@ -10,6 +10,7 @@ TagManager:
   - Junction
   - Tsplit
   - Curve
+  - AI
   layers:
   - Default
   - TransparentFX

@@ -1,23 +1,71 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using DefaultNamespace;
+using Random = UnityEngine.Random;
 
 public class TrafficController : MonoBehaviour
 {
 
     public Dictionary<Line, List<Line>> AdjList;
     public Transform[] cars;
+    public int numCars;
+    public List<Transform> roads;
+
+    public Transform AiCarContainer;
+    
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Road"))
+        {
+            roads.Remove(other.transform);
+        }
+
+        if (other.CompareTag("AI"))
+        {
+            Destroy(other.gameObject);
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        var cameraFrustrum = GeometryUtility.CalculateFrustumPlanes(Camera.main);
+        if (other.CompareTag("Road"))
+        {
+            // Ensure new cars are spawned within the radius
+            var spawnPos = transform.position + Vector3.ClampMagnitude(other.transform.position - transform.position, 100); 
+            roads.Add(other.transform);
+            if (GeometryUtility.TestPlanesAABB(cameraFrustrum, other.bounds))
+            {
+                RaycastHit hit;
+                var camPos = Camera.main.transform.position;
+                if(Physics.Raycast(camPos, other.transform.position - camPos, out hit, 100)) {
+                    if (hit.transform.CompareTag("Building"))
+                    {
+                        print("spawning in hidden");
+                        Instantiate(cars[Random.Range(0, cars.Length)], spawnPos, Quaternion.identity, AiCarContainer);
+                    }
+                }
+            }
+            else
+            {
+                Instantiate(cars[Random.Range(0, cars.Length)], spawnPos, Quaternion.identity, AiCarContainer);
+            }
+        }
+        
+    }
 
     // Start is called before the first frame update
     void Start()
     {
+        print("Start");
         AdjList = new Dictionary<Line, List<Line>>();
         GetDictionaryFromFile();
-        for (int i = 0; i < AdjList.Count/2; i++)
-        {
-            Instantiate(cars[Random.Range(0, cars.Length)], transform);
-        }
+        // for (int i = 0; i < numCars; i++)
+        // {
+        //     
+        // }
     }
 
     void GetDictionaryFromFile()

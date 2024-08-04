@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5671024851923041931}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: RR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40,7 +40,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3492743964119104403}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Raypoints
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -75,7 +75,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5237956974019190501}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: RL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -106,7 +106,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1803282456251204230}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: FL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -137,7 +137,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9111085639766618471}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: FR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -219,13 +219,41 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 35322474972381303, guid: 27e3b9008cbeec24090d8e82de3d142d, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 155209177847112236, guid: 27e3b9008cbeec24090d8e82de3d142d, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 27e3b9008cbeec24090d8e82de3d142d, type: 3}
       propertyPath: m_Name
       value: Police Sedan
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 27e3b9008cbeec24090d8e82de3d142d, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 27e3b9008cbeec24090d8e82de3d142d, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 27e3b9008cbeec24090d8e82de3d142d, type: 3}
+      propertyPath: m_TagString
+      value: AI
+      objectReference: {fileID: 0}
+    - target: {fileID: 1376822202894497987, guid: 27e3b9008cbeec24090d8e82de3d142d, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1920852361952897863, guid: 27e3b9008cbeec24090d8e82de3d142d, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 6326240090366979340, guid: 27e3b9008cbeec24090d8e82de3d142d, type: 3}
+      propertyPath: m_Layer
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

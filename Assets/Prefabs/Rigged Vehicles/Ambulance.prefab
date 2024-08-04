@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1394484925589107026}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: FL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40,7 +40,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1426500501100313723}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Raypoints
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -75,7 +75,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7339402234028596282}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: FR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -106,7 +106,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7874806065057172740}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: RR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -137,7 +137,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6550550789713061399}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: RL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -167,6 +167,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -9219408079819760569, guid: dbfe3539ab6635d42904271f2e6def00, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: dbfe3539ab6635d42904271f2e6def00, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.8
@@ -219,13 +223,37 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -8409383417827561379, guid: dbfe3539ab6635d42904271f2e6def00, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: -7807475549181654501, guid: dbfe3539ab6635d42904271f2e6def00, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: -2460945866436883867, guid: dbfe3539ab6635d42904271f2e6def00, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: dbfe3539ab6635d42904271f2e6def00, type: 3}
       propertyPath: m_Name
       value: Ambulance
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: dbfe3539ab6635d42904271f2e6def00, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: dbfe3539ab6635d42904271f2e6def00, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: dbfe3539ab6635d42904271f2e6def00, type: 3}
+      propertyPath: m_TagString
+      value: AI
+      objectReference: {fileID: 0}
+    - target: {fileID: 2573249709195467524, guid: dbfe3539ab6635d42904271f2e6def00, type: 3}
+      propertyPath: m_Layer
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4355448616607018285}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: RL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40,7 +40,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4497795816694383568}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: FR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -71,7 +71,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 737552159294261409}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Raypoints
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -106,7 +106,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7361313398522577125}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: RR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -137,7 +137,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9051298471190554770}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: FL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -167,6 +167,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -9185340077588980966, guid: 6fc0aea908ef40142a1a9e7ffdcbfa40, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 6fc0aea908ef40142a1a9e7ffdcbfa40, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -207,9 +211,33 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7294665645762556325, guid: 6fc0aea908ef40142a1a9e7ffdcbfa40, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: -4562524869779909621, guid: 6fc0aea908ef40142a1a9e7ffdcbfa40, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: -4484906179872977524, guid: 6fc0aea908ef40142a1a9e7ffdcbfa40, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: -3459451657481341783, guid: 6fc0aea908ef40142a1a9e7ffdcbfa40, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 6fc0aea908ef40142a1a9e7ffdcbfa40, type: 3}
       propertyPath: m_Name
       value: Sports
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 6fc0aea908ef40142a1a9e7ffdcbfa40, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 6fc0aea908ef40142a1a9e7ffdcbfa40, type: 3}
+      propertyPath: m_TagString
+      value: AI
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -265,7 +293,7 @@ MonoBehaviour:
   springTravel: 0.25
   wheelRadius: 0.3
   turnRadius: 5
-  speed: 3
+  speed: 10
 --- !u!54 &7757718998177228126
 Rigidbody:
   m_ObjectHideFlags: 0

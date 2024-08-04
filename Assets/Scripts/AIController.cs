@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using DefaultNamespace;
 using UnityEngine;
-using Quaternion = UnityEngine.Quaternion;
 using Random = UnityEngine.Random;
 using Vector3 = UnityEngine.Vector3;
 
@@ -12,7 +11,7 @@ public class AIController : MonoBehaviour
     private char currentDirection;
     private Line nextLine;
     private char nextLineDir;
-
+    
     private Dictionary<Line, List<Line>> adjList;
         
     // private char nextDirection;
@@ -38,36 +37,70 @@ public class AIController : MonoBehaviour
     private Vector3 intersectPoint;
     private bool grounded;
     private bool[] groundedTires = {false, false, false, false};
-    
+    private float speedMultiplier = 1;
+
+    private TrafficController _tc;
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(currentLine.StartPos(), currentLine.EndPos());
+    }
+
     void Start()
     {
-        adjList = transform.parent.GetComponent<TrafficController>().AdjList;
+        _tc = FindObjectOfType<TrafficController>();
+        adjList = _tc.AdjList;
         frontLeft = transform.GetChild(1);
         frontRight = transform.GetChild(2);
         backLeft = transform.GetChild(3);
         backRight = transform.GetChild(4);
+
+        var minDist = float.MaxValue;
+        
+        // Get a random Road
+        // Find the line closest to that point
+        // Closest Center?
+        var keyList = adjList.Keys.ToList();
+
+        foreach (Line line in keyList)
+        {
+            var distToLine = FindClosestLine(line.StartPos(), line.EndPos(), transform.position);
+            // coin flip for equally distanced lines
+            if (Mathf.Approximately(distToLine, minDist) && Random.Range(0, 2) == 1)
+            {
+                currentLine = line;
+            }
+            if (distToLine < minDist)
+            {
+                currentLine = line;
+                minDist = distToLine;
+            }
+        }
+        
+        // Assign line to current line
         
         // Get a random line
-        currentLine = adjList.Keys.ToList()[transform.GetSiblingIndex()*2];
-        nextLine = adjList[currentLine][Random.Range(0, adjList[currentLine].Count)];
+        // currentLine = adjList.Keys.ToList()[Random.Range(0, adjList.Count)]; 
             
         currentDirection = currentLine.Dir;
-        nextLineDir = nextLine.Dir;
-        
-        transform.position = new Vector3(currentLine.StartPos().x, 50, currentLine.StartPos().z);
-    }
 
-    // Update is called once per frame
+        // var pt = currentLine.RandomPoint();
+        
+        // transform.position = new Vector3(pt.x, 50, pt.y);
+        
+        GetNextLine();
+    }
     void Update()
     {
         Vector3 pos = transform.position;
         Quaternion rot = transform.rotation;
-
+    
         intersectPoint = new Vector3(currentDirection is 'E' or 'W' ? nextLine.Center : pos.x, pos.y,
             currentDirection is 'N' or 'S' ? nextLine.Center : pos.z);
         
         float dist = Vector3.Distance(pos, intersectPoint);
-        Vector3 velocity = transform.rotation * new Vector3(0, 0, speed);
+        Vector3 velocity = transform.rotation * new Vector3(0, 0, speedMultiplier * speed);
         rb.velocity =  new Vector3(velocity.x, rb.velocity.y, velocity.z);
         
         var turnComp = nextLineDir is 'E' or 'N' && dist < turnRadius ? Mathf.Lerp(turnRadius, 1, dist / turnRadius) :
@@ -77,7 +110,6 @@ public class AIController : MonoBehaviour
         if (pos.z < intersectPoint.z && currentDirection == 'N')
         {
             var lookPos = new Vector3(currentLine.Center + turnComp, pos.y, pos.z + Mathf.Min(dist, turnRadius)) - pos;
-            // Debug.DrawRay(pos, lookPos, Color.cyan);
             
             Quaternion lookRot = Quaternion.LookRotation(lookPos);
             lookRot.eulerAngles = new Vector3(transform.rotation.eulerAngles.x, lookRot.eulerAngles.y, rot.eulerAngles.z);
@@ -86,17 +118,15 @@ public class AIController : MonoBehaviour
         else if (pos.z > intersectPoint.z && currentDirection == 'S')
         {
             var lookPos = new Vector3(currentLine.Center + turnComp , pos.y, pos.z - Mathf.Min(dist, turnRadius)) - pos;
-            // Debug.DrawRay(pos, lookPos, Color.cyan);
             
             Quaternion lookRot = Quaternion.LookRotation(lookPos);
             lookRot.eulerAngles = new Vector3(transform.rotation.eulerAngles.x, lookRot.eulerAngles.y, rot.eulerAngles.z);
             transform.rotation = Quaternion.Slerp(rot, lookRot, Time.deltaTime * speed);
-
+    
         }
         else if (pos.x < intersectPoint.x && currentDirection == 'E')
         {
             var lookPos = new Vector3(pos.x + Mathf.Min(dist, turnRadius), pos.y, currentLine.Center + turnComp) - pos;
-            // Debug.DrawRay(pos, lookPos, Color.cyan);
             
             Quaternion lookRot = Quaternion.LookRotation(lookPos);
             lookRot.eulerAngles = new Vector3(transform.rotation.eulerAngles.x, lookRot.eulerAngles.y, rot.eulerAngles.z);
@@ -105,7 +135,6 @@ public class AIController : MonoBehaviour
         else if (pos.x > intersectPoint.x && currentDirection == 'W')
         {
             var lookPos = new Vector3(pos.x - Mathf.Min(dist, turnRadius), pos.y, currentLine.Center + turnComp) - pos;
-            // Debug.DrawRay(pos, lookPos, Color.cyan);
             
             Quaternion lookRot = Quaternion.LookRotation(lookPos);
             lookRot.eulerAngles = new Vector3(transform.rotation.eulerAngles.x, lookRot.eulerAngles.y, rot.eulerAngles.z);
@@ -114,39 +143,35 @@ public class AIController : MonoBehaviour
         // If on a new line, select next from list
         else
         {
-            // rb.velocity = Vector3.zero;
             currentLine = nextLine;
             currentDirection = currentLine.Dir;
-
-            // If now moving vertically North, next line must have a center point > your current z position + 5
-            // If now moving horizontally East, next line must have a center point > current x position + 5 
-            // If now moving vertically South, next line must have a center point < current position - 5
-            int idx = Random.Range(0, adjList[currentLine].Count);
-            float relevantPos = currentDirection is 'N' or 'S' ? transform.position.z : transform.position.x;
-            int sign = currentDirection is 'N' or 'E' ? 1 : -1;
-            while (sign * adjList[currentLine][idx].Center < sign * relevantPos + 5)
-            {
-                // If you're traveling N or East, you need a random number b/t [idx+1, count)
-                // Else need a number b/t [0, idx)
-                idx = sign == 1 ? Random.Range(idx + 1, adjList[currentLine].Count()) : Random.Range(0, idx);
-            }
-
-            nextLine = adjList[currentLine][idx];
-            nextLineDir = nextLine.Dir;
+            
+            GetNextLine();
         }
         
-        frontLeft.localEulerAngles += new Vector3(Vector3.Dot(rb.velocity, transform.forward) / 0.3f, 0, 0);
-        frontRight.localEulerAngles += new Vector3(Vector3.Dot(rb.velocity, transform.forward) / 0.3f, 0, 0);
-        backLeft.localEulerAngles -= new Vector3(Vector3.Dot(rb.velocity, transform.forward) / 0.3f, 0, 0);
-        backRight.localEulerAngles -= new Vector3(Vector3.Dot(rb.velocity, transform.forward) / 0.3f, 0, 0);
+        RotateWheels();
     }
-
+    
     private void FixedUpdate()
     {
         grounded = false;
         Suspension();
     }
+    
+    public float FindClosestLine(Vector3 origin, Vector3 end, Vector3 point)
+    {
+        // Get direction of line
+        Vector3 heading = (end - origin);
+        float magnitudeMax = heading.magnitude;
+        heading.Normalize();
 
+        //Do projection from the point but clamp it
+        Vector3 lhs = point - origin;
+        float dotP = Vector3.Dot(lhs, heading);
+        dotP = Mathf.Clamp(dotP, 0f, magnitudeMax);
+        return Vector3.Distance(origin + heading * dotP, point);
+    }
+    
     void Suspension()
     {
         for(int i = 0; i < rayPoints.Length; i++)
@@ -179,6 +204,40 @@ public class AIController : MonoBehaviour
         }
         // back left and right tires
         grounded = groundedTires[0] && groundedTires[1] && groundedTires[2] && groundedTires[3];
+    }
+
+    void GetNextLine()
+    {
+        // Random index in range (0, len list at currentLine)
+        var idx = Random.Range(0, adjList[currentLine].Count);
+        // North or south = Z, E/W = x
+        var relevantPos = currentDirection is 'N' or 'S' ? transform.position.z : transform.position.x;
+        var sign = currentDirection is 'N' or 'E' ? 1 : -1;
+        
+        // If now moving vertically North, next line must have a center point > your current z position + 5
+        // If now moving horizontally East, next line must have a center point > current x position + 5 
+        // If now moving vertically South, next line must have a center point < current position - 5
+        
+        // Adj list is sorted by centers (which would be the intersect in the relevant direction)
+        // i.e if you're on a vertical line, center of next line is going to be Z
+        if (sign * adjList[currentLine][idx].Center < sign * relevantPos)
+        {
+            // If you're traveling N or East, you need a random number b/t [idx+1, count)
+            // Else need a number b/t [0, idx)
+            idx = currentDirection is 'N' or 'E' ? adjList[currentLine].Count - 1 : 0;
+
+        }
+
+        nextLine = adjList[currentLine][idx];
+        nextLineDir = nextLine.Dir;
+    }
+
+    void RotateWheels()
+    {
+        frontLeft.localEulerAngles += new Vector3(Vector3.Dot(rb.velocity, transform.forward) / 0.3f, 0, 0);
+        frontRight.localEulerAngles += new Vector3(Vector3.Dot(rb.velocity, transform.forward) / 0.3f, 0, 0);
+        backLeft.localEulerAngles -= new Vector3(Vector3.Dot(rb.velocity, transform.forward) / 0.3f, 0, 0);
+        backRight.localEulerAngles -= new Vector3(Vector3.Dot(rb.velocity, transform.forward) / 0.3f, 0, 0);
     }
     
 }
