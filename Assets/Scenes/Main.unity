@@ -23696,7 +23696,7 @@ GameObject:
   - component: {fileID: 596623057}
   - component: {fileID: 596623060}
   - component: {fileID: 596623061}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Primary Restaurant
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -83377,6 +83377,12 @@ MonoBehaviour:
   - {fileID: 1612919713894859123, guid: 21c5d95411e93a344857dbfe62c0a1e6, type: 3}
   numCars: 10
   roads: []
+  location:
+    serializedVersion: 2
+    m_Bits: 2048
+  car:
+    serializedVersion: 2
+    m_Bits: 1024
   AiCarContainer: {fileID: 280546127}
 --- !u!135 &1912899285
 SphereCollider:

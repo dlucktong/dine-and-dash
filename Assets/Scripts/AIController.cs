@@ -41,6 +41,8 @@ public class AIController : MonoBehaviour
 
     private TrafficController _tc;
 
+    public LayerMask car;
+
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
@@ -57,10 +59,7 @@ public class AIController : MonoBehaviour
         backRight = transform.GetChild(4);
 
         var minDist = float.MaxValue;
-        
-        // Get a random Road
-        // Find the line closest to that point
-        // Closest Center?
+
         var keyList = adjList.Keys.ToList();
 
         foreach (Line line in keyList)
@@ -77,25 +76,37 @@ public class AIController : MonoBehaviour
                 minDist = distToLine;
             }
         }
-        
-        // Assign line to current line
-        
-        // Get a random line
-        // currentLine = adjList.Keys.ToList()[Random.Range(0, adjList.Count)]; 
             
         currentDirection = currentLine.Dir;
-
-        // var pt = currentLine.RandomPoint();
-        
-        // transform.position = new Vector3(pt.x, 50, pt.y);
-        
         GetNextLine();
     }
-    void Update()
+    private void FixedUpdate()
+    {
+        grounded = false;
+        Move();
+        Suspension();
+        RotateWheels();
+    }
+    
+    private float FindClosestLine(Vector3 origin, Vector3 end, Vector3 point)
+    {
+        // Get direction of line
+        Vector3 heading = (end - origin);
+        float magnitudeMax = heading.magnitude;
+        heading.Normalize();
+
+        //Do projection from the point but clamp it
+        Vector3 lhs = point - origin;
+        float dotP = Vector3.Dot(lhs, heading);
+        dotP = Mathf.Clamp(dotP, 0f, magnitudeMax);
+        return Vector3.Distance(origin + heading * dotP, point);
+    }
+
+    void Move()
     {
         Vector3 pos = transform.position;
         Quaternion rot = transform.rotation;
-    
+        
         intersectPoint = new Vector3(currentDirection is 'E' or 'W' ? nextLine.Center : pos.x, pos.y,
             currentDirection is 'N' or 'S' ? nextLine.Center : pos.z);
         
@@ -106,7 +117,6 @@ public class AIController : MonoBehaviour
         var turnComp = nextLineDir is 'E' or 'N' && dist < turnRadius ? Mathf.Lerp(turnRadius, 1, dist / turnRadius) :
             nextLineDir is 'S' or 'W' && dist < turnRadius ? -1 * Mathf.Lerp(turnRadius, 1, dist / turnRadius) : 0;
         
-        // move along the line in direction
         if (pos.z < intersectPoint.z && currentDirection == 'N')
         {
             var lookPos = new Vector3(currentLine.Center + turnComp, pos.y, pos.z + Mathf.Min(dist, turnRadius)) - pos;
@@ -148,29 +158,8 @@ public class AIController : MonoBehaviour
             
             GetNextLine();
         }
-        
-        RotateWheels();
     }
     
-    private void FixedUpdate()
-    {
-        grounded = false;
-        Suspension();
-    }
-    
-    public float FindClosestLine(Vector3 origin, Vector3 end, Vector3 point)
-    {
-        // Get direction of line
-        Vector3 heading = (end - origin);
-        float magnitudeMax = heading.magnitude;
-        heading.Normalize();
-
-        //Do projection from the point but clamp it
-        Vector3 lhs = point - origin;
-        float dotP = Vector3.Dot(lhs, heading);
-        dotP = Mathf.Clamp(dotP, 0f, magnitudeMax);
-        return Vector3.Distance(origin + heading * dotP, point);
-    }
     
     void Suspension()
     {

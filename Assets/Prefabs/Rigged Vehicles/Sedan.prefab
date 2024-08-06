@@ -306,6 +306,9 @@ MonoBehaviour:
   wheelRadius: 0.3
   turnRadius: 5
   speed: 10
+  car:
+    serializedVersion: 2
+    m_Bits: 1024
 --- !u!65 &1006632288417792314
 BoxCollider:
   m_ObjectHideFlags: 0
